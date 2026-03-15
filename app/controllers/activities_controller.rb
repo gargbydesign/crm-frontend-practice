@@ -8,7 +8,12 @@ class ActivitiesController < ApplicationController
     # assign logged-in user as activity's user (aka "salesperson")
     @activity["user_id"] = session["user_id"]
     @activity.save
-    redirect_to "/contacts/#{@activity["contact_id"]}"
+
+    if params["company_id"] != nil
+      redirect_to "/companies/#{params["company_id"]}"
+    else
+      redirect_to "/contacts/#{@activity["contact_id"]}"
+    end
   end
 
 end

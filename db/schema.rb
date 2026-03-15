@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2022_02_21_190705) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_15_195331) do
   create_table "activities", force: :cascade do |t|
     t.string "activity_type"
     t.integer "contact_id"
@@ -35,6 +35,7 @@ ActiveRecord::Schema[8.1].define(version: 2022_02_21_190705) do
     t.string "first_name"
     t.string "last_name"
     t.string "phone_number"
+    t.string "position"
     t.datetime "updated_at", null: false
   end
 

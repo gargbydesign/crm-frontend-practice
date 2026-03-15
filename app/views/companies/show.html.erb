@@ -1,26 +1,86 @@
 <h1><%= @company["name"] %></h1>
 
-<h2><%= @company["city"] %>, <%= @company["state"] %></h2>
+<div class="row">
 
-<h3>Contacts</h3>
+  <%# ========== LEFT COLUMN - Contacts (4 of 12 columns = ~30%) ========== %>
+  <div class="col-4">
+    <h2>Contacts</h2>
 
-<ul>
-  <% for contact in @contacts %>
-    <li>
-      <a href="/contacts/<%= contact["id"] %>">
-        <%= contact["last_name"] %>, <%= contact["first_name"] %>
-      </a>
-    </li>
-  <% end %>
-</ul>
+    <% for contact in @contacts %>
+      <div class="d-flex align-items-start mb-3">
+        <i class="bi bi-person-vcard me-2" style="font-size: 2rem;"></i>
+        <div>
+          <div>
+            <a href="/contacts/<%= contact["id"] %>">
+              <%= contact["first_name"] %> <%= contact["last_name"] %>
+            </a>
+          </div>
+          <div><%= contact["position"] %></div>
+        </div>
+      </div>
+    <% end %>
+  </div>
 
-<p>
-  <a href="/contacts/new?company_id=<%= @company["id"] %>">New Contact</a>
-</p>
+  <%# ========== RIGHT COLUMN - Sales Activity (8 of 12 columns = ~70%) ========== %>
+  <div class="col-8">
+    <h2>Sales Activity</h2>
+
+    <% for contact in @contacts %>
+      <% contact_activities = Activity.where({ "contact_id" => contact["id"] }) %>
+      <% for activity in contact_activities %>
+        <% activity_user = User.find_by({ "id" => activity["user_id"] }) %>
+        <h5>
+          <%= activity["activity_type"].capitalize %>
+          between
+          <a href="/contacts/<%= contact["id"] %>"><%= contact["first_name"] %> <%= contact["last_name"] %></a>
+          and
+          <% if activity_user != nil %>
+            <%= activity_user["first_name"] %>
+          <% end %>
+          on <%= activity["created_at"] %>:
+        </h5>
+        <p><%= activity["note"] %></p>
+      <% end %>
+    <% end %>
+
+    <h3>Log a new sales activity</h3>
+
+    <form action="/activities" method="post">
+      <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+      <input type="hidden" name="company_id" value="<%= @company["id"] %>">
+
+      <p>
+        <select name="activity_type">
+          <option value="call">call</option>
+          <option value="email">email</option>
+          <option value="meeting">meeting</option>
+        </select>
+      </p>
+
+      <p>
+        With
+        <select name="contact_id">
+          <% for contact in @contacts %>
+            <option value="<%= contact["id"] %>">
+              <%= contact["first_name"] %> <%= contact["last_name"] %>
+            </option>
+          <% end %>
+        </select>
+      </p>
+
+      <p>
+        <textarea name="note" class="form-control"></textarea>
+      </p>
+
+      <button class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+
+</div>
 
 <p><a href="/companies">Back to All Companies</a></p>
 
-<% User.find_by({ "id" => session["user_id"] }) != nil %>
+<% if User.find_by({ "id" => session["user_id"] }) != nil %>
   <p><a href="/companies/<%= @company["id"] %>/edit">Edit Company</a></p>
 
   <form action="/companies/<%= @company["id"] %>" method="post">
